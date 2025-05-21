@@ -1,6 +1,6 @@
 package org.springframework.test.aop;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.aop.aspectj.AspectJExpressionPointcut;
 import org.springframework.test.service.HelloService;
 

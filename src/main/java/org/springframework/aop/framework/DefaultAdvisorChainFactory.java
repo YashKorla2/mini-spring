@@ -23,9 +23,7 @@ public class DefaultAdvisorChainFactory implements AdvisorChainFactory {
 		List<Object> interceptorList = new ArrayList<>(advisors.length);
 		Class<?> actualClass = (targetClass != null ? targetClass : method.getDeclaringClass());
 		for (Advisor advisor : advisors) {
-			if (advisor instanceof PointcutAdvisor) {
-				// Add it conditionally.
-				PointcutAdvisor pointcutAdvisor = (PointcutAdvisor) advisor;
+			if (advisor instanceof PointcutAdvisor pointcutAdvisor) {
 				// 校验当前Advisor是否适用于当前对象
 				if (pointcutAdvisor.getPointcut().getClassFilter().matches(actualClass)) {
 					MethodMatcher mm = pointcutAdvisor.getPointcut().getMethodMatcher();
