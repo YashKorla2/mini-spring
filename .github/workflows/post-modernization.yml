@@ -130,8 +130,16 @@ jobs:
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          
+          git fetch origin
+          git checkout -b pr-branch origin/${{ github.head_ref }}
+
           git add reports/post-modernization.md
           git commit -m "📄 Add post-modernization report with logs [skip ci]" || echo "No changes to commit"
-          git push origin HEAD:${{ github.head_ref }}
+
+          # Rebase instead of merge to avoid unwanted merge commits
+          git pull --rebase origin ${{ github.head_ref }}
+          git push origin pr-branch:${{ github.head_ref }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
