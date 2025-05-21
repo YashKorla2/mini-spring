@@ -124,6 +124,7 @@ jobs:
             fi
             echo '```' >> $REPORT
             echo >> $REPORT
+          done
 
       - name: Commit and Push Report
         run: |
