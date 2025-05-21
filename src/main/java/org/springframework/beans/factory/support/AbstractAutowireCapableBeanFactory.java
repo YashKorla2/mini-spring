@@ -53,8 +53,8 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 
 	protected Object applyBeanPostProcessorsBeforeInstantiation(Class beanClass, String beanName) {
 		for (BeanPostProcessor beanPostProcessor : getBeanPostProcessors()) {
-			if (beanPostProcessor instanceof InstantiationAwareBeanPostProcessor) {
-				Object result = ((InstantiationAwareBeanPostProcessor) beanPostProcessor).postProcessBeforeInstantiation(beanClass, beanName);
+			if (beanPostProcessor instanceof InstantiationAwareBeanPostProcessor processor) {
+				Object result = processor.postProcessBeforeInstantiation(beanClass, beanName);
 				if (result != null) {
 					return result;
 				}
@@ -110,8 +110,8 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 	protected Object getEarlyBeanReference(String beanName, BeanDefinition beanDefinition, Object bean) {
 		Object exposedObject = bean;
 		for (BeanPostProcessor bp : getBeanPostProcessors()) {
-			if (bp instanceof InstantiationAwareBeanPostProcessor) {
-				exposedObject = ((InstantiationAwareBeanPostProcessor) bp).getEarlyBeanReference(exposedObject, beanName);
+			if (bp instanceof InstantiationAwareBeanPostProcessor processor1) {
+				exposedObject = processor1.getEarlyBeanReference(exposedObject, beanName);
 				if (exposedObject == null) {
 					return exposedObject;
 				}
@@ -131,8 +131,8 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 	private boolean applyBeanPostProcessorsAfterInstantiation(String beanName, Object bean) {
 		boolean continueWithPropertyPopulation = true;
 		for (BeanPostProcessor beanPostProcessor : getBeanPostProcessors()) {
-			if (beanPostProcessor instanceof InstantiationAwareBeanPostProcessor) {
-				if (!((InstantiationAwareBeanPostProcessor) beanPostProcessor).postProcessAfterInstantiation(bean, beanName)) {
+			if (beanPostProcessor instanceof InstantiationAwareBeanPostProcessor processor2) {
+				if (!processor2.postProcessAfterInstantiation(bean, beanName)) {
 					continueWithPropertyPopulation = false;
 					break;
 				}
@@ -150,8 +150,8 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 	 */
 	protected void applyBeanPostProcessorsBeforeApplyingPropertyValues(String beanName, Object bean, BeanDefinition beanDefinition) {
 		for (BeanPostProcessor beanPostProcessor : getBeanPostProcessors()) {
-			if (beanPostProcessor instanceof InstantiationAwareBeanPostProcessor) {
-				PropertyValues pvs = ((InstantiationAwareBeanPostProcessor) beanPostProcessor).postProcessPropertyValues(beanDefinition.getPropertyValues(), bean, beanName);
+			if (beanPostProcessor instanceof InstantiationAwareBeanPostProcessor processor3) {
+				PropertyValues pvs = processor3.postProcessPropertyValues(beanDefinition.getPropertyValues(), bean, beanName);
 				if (pvs != null) {
 					for (PropertyValue propertyValue : pvs.getPropertyValues()) {
 						beanDefinition.getPropertyValues().addPropertyValue(propertyValue);
@@ -198,9 +198,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 			for (PropertyValue propertyValue : beanDefinition.getPropertyValues().getPropertyValues()) {
 				String name = propertyValue.getName();
 				Object value = propertyValue.getValue();
-				if (value instanceof BeanReference) {
-					// beanA依赖beanB，先实例化beanB
-					BeanReference beanReference = (BeanReference) value;
+				if (value instanceof BeanReference beanReference) {
 					value = getBean(beanReference.getBeanName());
 				} else {
 					//类型转换
@@ -223,8 +221,8 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 	}
 
 	protected Object initializeBean(String beanName, Object bean, BeanDefinition beanDefinition) {
-		if (bean instanceof BeanFactoryAware) {
-			((BeanFactoryAware) bean).setBeanFactory(this);
+		if (bean instanceof BeanFactoryAware aware) {
+			aware.setBeanFactory(this);
 		}
 
 		//执行BeanPostProcessor的前置处理
@@ -279,8 +277,8 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 	 * @throws Throwable
 	 */
 	protected void invokeInitMethods(String beanName, Object bean, BeanDefinition beanDefinition) throws Throwable {
-		if (bean instanceof InitializingBean) {
-			((InitializingBean) bean).afterPropertiesSet();
+		if (bean instanceof InitializingBean bean1) {
+			bean1.afterPropertiesSet();
 		}
 		String initMethodName = beanDefinition.getInitMethodName();
 		if (StrUtil.isNotEmpty(initMethodName) && !(bean instanceof InitializingBean && "afterPropertiesSet".equals(initMethodName))) {

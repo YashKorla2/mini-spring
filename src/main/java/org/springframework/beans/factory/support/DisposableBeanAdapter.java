@@ -28,8 +28,8 @@ public class DisposableBeanAdapter implements DisposableBean {
 
 	@Override
 	public void destroy() throws Exception {
-		if (bean instanceof DisposableBean) {
-			((DisposableBean) bean).destroy();
+		if (bean instanceof DisposableBean bean2) {
+			bean2.destroy();
 		}
 
 		//避免同时继承自DisposableBean，且自定义方法与DisposableBean方法同名，销毁方法执行两次的情况
