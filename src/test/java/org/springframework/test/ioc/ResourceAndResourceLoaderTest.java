@@ -1,7 +1,7 @@
 package org.springframework.test.ioc;
 
 import cn.hutool.core.io.IoUtil;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.core.io.*;
 
 import java.io.InputStream;

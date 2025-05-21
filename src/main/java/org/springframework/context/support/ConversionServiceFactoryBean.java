@@ -31,15 +31,17 @@ public class ConversionServiceFactoryBean implements FactoryBean<ConversionServi
 	private void registerConverters(Set<?> converters, ConverterRegistry registry) {
 		if (converters != null) {
 			for (Object converter : converters) {
-				if (converter instanceof GenericConverter) {
-					registry.addConverter((GenericConverter) converter);
-				} else if (converter instanceof Converter<?, ?>) {
-					registry.addConverter((Converter<?, ?>) converter);
-				} else if (converter instanceof ConverterFactory<?, ?>) {
-					registry.addConverterFactory((ConverterFactory<?, ?>) converter);
+				if (converter instanceof GenericConverter converter2) {
+					registry.addConverter(converter2);
+				} else if (converter instanceof Converter<?, ?> converter1) {
+					registry.addConverter(converter1);
+				} else if (converter instanceof ConverterFactory<?, ?> factory) {
+					registry.addConverterFactory(factory);
 				} else {
-					throw new IllegalArgumentException("Each converter object must implement one of the " +
-							"Converter, ConverterFactory, or GenericConverter interfaces");
+					throw new IllegalArgumentException("""
+							Each converter object must implement one of the \
+							Converter, ConverterFactory, or GenericConverter interfaces\
+							""");
 				}
 			}
 		}

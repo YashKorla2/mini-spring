@@ -1,7 +1,6 @@
 package org.springframework.test.aop;
 
-import org.junit.Test;
-
+import org.junit.jupiter.api.Test;
 import org.springframework.aop.TargetSource;
 import org.springframework.aop.aspectj.AspectJExpressionPointcutAdvisor;
 import org.springframework.aop.framework.ProxyFactory;
