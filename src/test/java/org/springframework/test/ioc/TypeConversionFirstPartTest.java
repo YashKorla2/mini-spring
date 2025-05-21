@@ -1,6 +1,6 @@
 package org.springframework.test.ioc;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.core.convert.support.GenericConversionService;
 import org.springframework.core.convert.support.StringToNumberConverterFactory;

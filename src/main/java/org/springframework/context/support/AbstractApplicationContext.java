@@ -63,8 +63,8 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader i
 		//设置类型转换器
 		if (beanFactory.containsBean(CONVERSION_SERVICE_BEAN_NAME)) {
 			Object conversionService = beanFactory.getBean(CONVERSION_SERVICE_BEAN_NAME);
-			if (conversionService instanceof ConversionService) {
-				beanFactory.setConversionService((ConversionService) conversionService);
+			if (conversionService instanceof ConversionService service) {
+				beanFactory.setConversionService(service);
 			}
 		}
 
