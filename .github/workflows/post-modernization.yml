@@ -248,7 +248,7 @@ jobs:
           git fetch origin
           git checkout -b pr-branch origin/${{ github.head_ref }}
 
-          git add reports/post-modernization.md
+          git add reports/post-modernization-*.md
           git commit -m "📄 Add post-modernization report with logs [skip ci]" || echo "No changes to commit"
           git pull --rebase origin ${{ github.head_ref }}
           git push origin pr-branch:${{ github.head_ref }}
