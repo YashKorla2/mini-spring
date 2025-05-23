@@ -195,20 +195,27 @@ jobs:
 
       - name: Generate Markdown Report
         run: |
+          set -xe
+
           [ -d reports ] || mkdir reports
+          echo "Created/verified reports directory"
 
           DATE=$(date +%Y-%m-%d)
           REPORT="reports/post-modernization-${DATE}.md"
+          echo "Report file will be $REPORT"
 
           echo "# 🛠️ Post-Modernization Report" > "$REPORT"
           echo "_Generated on $(date)_\n" >> "$REPORT"
 
           for job in build test lint security; do
+            echo "Processing job: $job"
             LOGFILE="logs/${job}-log/${job}.log"
-            echo "## 🔹 ${job^} Result" >> "$REPORT"
+            echo "## 🔹 $(echo $job | sed -e 's/^./\u&/') Result" >> "$REPORT"
 
             if [[ -f "$LOGFILE" ]]; then
-              ERRCOUNT=$(grep -ciE "error|failed|exception" "$LOGFILE")
+              echo "Found log file: $LOGFILE"
+              ERRCOUNT=$(grep -ciE "error|failed|exception" "$LOGFILE" || echo 0)
+              echo "Error count for $job: $ERRCOUNT"
               if [[ "$ERRCOUNT" -gt 0 ]]; then
                 echo "**❌ Failed — $ERRCOUNT issue(s) found**" >> "$REPORT"
                 echo "" >> "$REPORT"
@@ -225,7 +232,6 @@ jobs:
 
             echo "" >> "$REPORT"
           done
-
 
       - name: Commit and Push Report
         run: |
