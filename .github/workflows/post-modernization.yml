@@ -195,35 +195,38 @@ jobs:
 
       - name: Generate Markdown Report
         run: |
-          mkdir -p reports
-          REPORT=reports/post-modernization.md
-          echo "# 🛠️ Post-Modernization Report" > $REPORT
-          echo "_Generated on $(date)_\n" >> $REPORT
+          # Ensure reports directory exists
+          [ -d reports ] || mkdir reports
+
+          # Use current date in report file name
+          DATE=$(date +%Y-%m-%d)
+          REPORT="reports/post-modernization-${DATE}.md"
+
+          echo "# 🛠️ Post-Modernization Report" > "$REPORT"
+          echo "_Generated on $(date)_\n" >> "$REPORT"
 
           for job in build test lint security; do
             LOGFILE="logs/${job}-log/${job}.log"
-            echo "## 🔹 ${job^} Result" >> $REPORT
+            echo "## 🔹 ${job^} Result" >> "$REPORT"
 
             if [[ -f "$LOGFILE" ]]; then
               ERRCOUNT=$(grep -ciE "error|failed|exception" "$LOGFILE")
               if [[ "$ERRCOUNT" -gt 0 ]]; then
-                echo "**❌ Failed — $ERRCOUNT issue(s) found**" >> $REPORT
-                echo "" >> $REPORT
-                echo '**Top Errors:**' >> $REPORT
-                echo '```' >> $REPORT
-                grep -iE "error|failed|exception" "$LOGFILE" | head -n 10 >> $REPORT
-                echo '```' >> $REPORT
+                echo "**❌ Failed — $ERRCOUNT issue(s) found**" >> "$REPORT"
+                echo "" >> "$REPORT"
+                echo '**Top Errors:**' >> "$REPORT"
+                echo '```' >> "$REPORT"
+                grep -iE "error|failed|exception" "$LOGFILE" | head -n 10 >> "$REPORT"
+                echo '```' >> "$REPORT"
               else
-                echo "**✅ Succeeded**" >> $REPORT
+                echo "**✅ Succeeded**" >> "$REPORT"
               fi
             else
-              echo "**⚠️ No log found (job may not have run)**" >> $REPORT
+              echo "**⚠️ No log found (job may not have run)**" >> "$REPORT"
             fi
 
-            echo "" >> $REPORT
+            echo "" >> "$REPORT"
           done
-
-
 
       - name: Commit and Push Report
         run: |
