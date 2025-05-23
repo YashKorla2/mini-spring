@@ -50,8 +50,7 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry i
 	 */
 	protected Object getObjectForBeanInstance(Object beanInstance, String beanName) {
 		Object object = beanInstance;
-		if (beanInstance instanceof FactoryBean) {
-			FactoryBean factoryBean = (FactoryBean) beanInstance;
+		if (beanInstance instanceof FactoryBean factoryBean) {
 			try {
 				if (factoryBean.isSingleton()) {
 					//singleton作用域bean，从缓存中获取

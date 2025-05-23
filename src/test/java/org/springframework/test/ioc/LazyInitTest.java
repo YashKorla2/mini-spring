@@ -2,8 +2,7 @@ package org.springframework.test.ioc;
 
 import java.util.concurrent.TimeUnit;
 
-import org.junit.Test;
-
+import org.junit.jupiter.api.Test;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.test.bean.Car;
 

@@ -73,8 +73,8 @@ public class PropertyPlaceholderConfigurer implements BeanFactoryPostProcessor {
 		PropertyValues propertyValues = beanDefinition.getPropertyValues();
 		for (PropertyValue propertyValue : propertyValues.getPropertyValues()) {
 			Object value = propertyValue.getValue();
-			if (value instanceof String) {
-				value = resolvePlaceholder((String) value, properties);
+			if (value instanceof String string) {
+				value = resolvePlaceholder(string, properties);
 				propertyValues.addPropertyValue(new PropertyValue(propertyValue.getName(), value));
 			}
 		}
