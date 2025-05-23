@@ -1,26 +1,26 @@
 # 🛠️ Post-Modernization Report
-_Generated on Fri May 23 07:26:41 UTC 2025_
+_Generated on Fri May 23 07:28:44 UTC 2025_
 
 ## 🧠 Detected Project Language
 The project was detected as a **java** project.
 
 ## 🔹 Build Result
 ```
-**✅ Succeeded**
+✅ Succeeded
 ```
 
 ## 🔹 Test Result
 ```
-**❌ Failed — 79 issue(s) found**
+❌ Failed — 79 issue(s) found
 ```
 
 ## 🔹 Lint Result
 ```
-**❌ Failed — 7 issue(s) found**
+❌ Failed — 7 issue(s) found
 ```
 
 ## 🔹 Security Result
 ```
-**❌ Failed — 1 issue(s) found**
+❌ Failed — 1 issue(s) found
 ```
 
