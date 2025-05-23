@@ -210,7 +210,7 @@ jobs:
             echo "_Generated on $(date)_"
             echo ""
             echo "## 🧠 Detected Project Language"
-            echo "The project was detected as: **${LANGUAGE}**"
+            echo "The project was detected as a **${LANGUAGE}** project."
             echo ""
           } > "$REPORT"
 
@@ -225,12 +225,12 @@ jobs:
               if [[ -f "$LOGFILE" ]]; then
                 ERRCOUNT=$(grep -iE "error|failed|exception" "$LOGFILE" | wc -l | tr -d ' ')
                 if [[ "$ERRCOUNT" -gt 0 ]]; then
-                  echo "**❌ Failed — $ERRCOUNT issue(s) found**"
+                  echo "```**❌ Failed — $ERRCOUNT issue(s) found**```"
                 else
-                  echo "**✅ Succeeded**"
+                  echo "```**✅ Succeeded**```"
                 fi
               else
-                echo "**⚠️ No log found (job may not have run)**"
+                echo "```**⚠️ No log found (job may not have run)**```"
               fi
               echo ""
             } >> "$REPORT"
