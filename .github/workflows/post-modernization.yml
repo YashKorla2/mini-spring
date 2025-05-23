@@ -214,7 +214,7 @@ jobs:
                 echo "" >> "$REPORT"
                 echo '**Top Errors:**' >> "$REPORT"
                 echo '```' >> "$REPORT"
-                grep -iE "error|failed|exception" "$LOGFILE" | head -n 10 >> "$REPORT"
+                grep -iE "error|failed|exception" "$LOGFILE" | head -n 10 || true >> "$REPORT"
                 echo '```' >> "$REPORT"
               else
                 echo "**✅ Succeeded**" >> "$REPORT"
@@ -225,6 +225,7 @@ jobs:
 
             echo "" >> "$REPORT"
           done
+
 
       - name: Commit and Push Report
         run: |
