@@ -30,6 +30,7 @@ jobs:
             echo "language=dotnet" >> $GITHUB_OUTPUT
           else
             echo "language=unknown" >> $GITHUB_OUTPUT
+          fi
 
   build:
     needs: detect-language
