@@ -224,11 +224,6 @@ jobs:
                 ERRCOUNT=$(grep -iE "error|failed|exception" "$LOGFILE" | wc -l | tr -d ' ')
                 if [[ "$ERRCOUNT" -gt 0 ]]; then
                   echo "**❌ Failed — $ERRCOUNT issue(s) found**"
-                  echo ""
-                  echo "**Top Errors:**"
-                  echo '```'
-                  grep -iE "error|failed|exception" "$LOGFILE" | head -n 10 || true
-                  echo '```'
                 else
                   echo "**✅ Succeeded**"
                 fi
