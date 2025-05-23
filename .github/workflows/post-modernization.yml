@@ -195,10 +195,8 @@ jobs:
 
       - name: Generate Markdown Report
         run: |
-          # Ensure reports directory exists
           [ -d reports ] || mkdir reports
 
-          # Use current date in report file name
           DATE=$(date +%Y-%m-%d)
           REPORT="reports/post-modernization-${DATE}.md"
 
