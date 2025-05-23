@@ -225,15 +225,22 @@ jobs:
               if [[ -f "$LOGFILE" ]]; then
                 ERRCOUNT=$(grep -iE "error|failed|exception" "$LOGFILE" | wc -l | tr -d ' ')
                 if [[ "$ERRCOUNT" -gt 0 ]]; then
-                  echo "```**❌ Failed — $ERRCOUNT issue(s) found**```"
+                  echo '```'
+                  echo "**❌ Failed — $ERRCOUNT issue(s) found**"
+                  echo '```'
                 else
-                  echo "```**✅ Succeeded**```"
+                  echo '```'
+                  echo "**✅ Succeeded**"
+                  echo '```'
                 fi
               else
-                echo "```**⚠️ No log found (job may not have run)**```"
+                echo '```'
+                echo "**⚠️ No log found (job may not have run)**"
+                echo '```'
               fi
               echo ""
             } >> "$REPORT"
+
           done
 
       - name: Commit and Push Report
