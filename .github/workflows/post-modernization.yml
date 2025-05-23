@@ -226,16 +226,16 @@ jobs:
                 ERRCOUNT=$(grep -iE "error|failed|exception" "$LOGFILE" | wc -l | tr -d ' ')
                 if [[ "$ERRCOUNT" -gt 0 ]]; then
                   echo '```'
-                  echo "**❌ Failed — $ERRCOUNT issue(s) found**"
+                  echo "❌ Failed — $ERRCOUNT issue(s) found"
                   echo '```'
                 else
                   echo '```'
-                  echo "**✅ Succeeded**"
+                  echo "✅ Succeeded"
                   echo '```'
                 fi
               else
                 echo '```'
-                echo "**⚠️ No log found (job may not have run)**"
+                echo "⚠️ No log found (job may not have run)"
                 echo '```'
               fi
               echo ""
