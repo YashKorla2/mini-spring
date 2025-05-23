@@ -1,5 +1,8 @@
 # 🛠️ Post-Modernization Report
-_Generated on Fri May 23 07:12:10 UTC 2025_
+_Generated on Fri May 23 07:19:18 UTC 2025_
+
+## 🧠 Detected Project Language
+The project was detected as: **java**
 
 ## 🔹 Build Result
 **✅ Succeeded**
