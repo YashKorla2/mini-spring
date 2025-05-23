@@ -184,7 +184,7 @@ jobs:
   report:
     if: startsWith(github.head_ref, 'Q-TRANSFORM-issue-') || always()
     runs-on: ubuntu-latest
-    needs: [build, test, lint, security]
+    needs: [detect-language, build, test, lint, security]
     steps:
       - uses: actions/checkout@v4
 
@@ -194,13 +194,12 @@ jobs:
           path: logs
 
       - name: Generate Markdown Report
+        env:
+          LANGUAGE: ${{ needs.detect-language.outputs.language }}
         run: |
           set -e
-
-          # Trap to report the line that caused the error
           trap 'echo "❌ Script failed at line $LINENO"; exit 1' ERR
 
-          # Create reports directory if it doesn't exist
           [ -d reports ] || mkdir reports
 
           DATE=$(date +%Y-%m-%d)
@@ -209,6 +208,9 @@ jobs:
           {
             echo "# 🛠️ Post-Modernization Report"
             echo "_Generated on $(date)_"
+            echo ""
+            echo "## 🧠 Detected Project Language"
+            echo "The project was detected as: **${LANGUAGE}**"
             echo ""
           } > "$REPORT"
 
@@ -233,7 +235,6 @@ jobs:
               echo ""
             } >> "$REPORT"
           done
-
 
       - name: Commit and Push Report
         run: |
