@@ -12,82 +12,169 @@ permissions:
   contents: write
 
 jobs:
-  build:
+  detect-language:
     if: startsWith(github.head_ref, 'Q-TRANSFORM-issue-')
     runs-on: ubuntu-latest
+    outputs:
+      language: ${{ steps.detect.outputs.language }}
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Set up JDK 17
+      - name: Detect Project Language
+        id: detect
+        run: |
+          if [ -f "pom.xml" ]; then
+            echo "language=java" >> $GITHUB_OUTPUT
+          elif ls *.sln 1> /dev/null 2>&1 || ls *.csproj 1> /dev/null 2>&1; then
+            echo "language=dotnet" >> $GITHUB_OUTPUT
+          else
+            echo "language=unknown" >> $GITHUB_OUTPUT
+
+  build:
+    needs: detect-language
+    if: needs.detect-language.outputs.language != 'unknown'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Environment
+        if: needs.detect-language.outputs.language == 'java'
         uses: actions/setup-java@v4
         with:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: Cache Maven packages
-        uses: actions/cache@v4
+      - name: Set up .NET
+        if: needs.detect-language.outputs.language == 'dotnet'
+        uses: actions/setup-dotnet@v4
         with:
-          path: ~/.m2
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          dotnet-version: '6.0.x'
 
-      - name: Build with Maven
-        run: mvn clean install -DskipTests 2>&1 | tee build.log
+      - name: Build Project
+        run: |
+          case "${{ needs.detect-language.outputs.language }}" in
+            java)
+              mvn clean install -DskipTests | tee build.log
+              ;;
+            dotnet)
+              dotnet build --no-restore | tee build.log
+              ;;
+          esac
 
-      - name: Upload Build Log
-        uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v4
         with:
           name: build-log
           path: build.log
 
   test:
-    if: startsWith(github.head_ref, 'Q-TRANSFORM-issue-')
+    needs: [detect-language, build]
+    if: needs.detect-language.outputs.language != 'unknown'
     runs-on: ubuntu-latest
-    needs: build
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-java@v4
+
+      - name: Set up Environments
+        if: needs.detect-language.outputs.language == 'java'
+        uses: actions/setup-java@v4
         with:
           java-version: '17'
           distribution: 'temurin'
-      - run: mvn test 2>&1 | tee test.log
+
+      - name: Set up .NET
+        if: needs.detect-language.outputs.language == 'dotnet'
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '6.0.x'
+
+      - name: Run Tests
+        run: |
+          case "${{ needs.detect-language.outputs.language }}" in
+            java)
+              mvn test | tee test.log
+              ;;
+            dotnet)
+              dotnet test --no-build --logger "trx;LogFileName=test_results.trx" | tee test.log
+              ;;
+          esac
+
       - uses: actions/upload-artifact@v4
         with:
           name: test-log
           path: test.log
 
   lint:
-    if: startsWith(github.head_ref, 'Q-TRANSFORM-issue-')
+    needs: [detect-language, build]
+    if: needs.detect-language.outputs.language != 'unknown'
     runs-on: ubuntu-latest
-    needs: build
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-java@v4
+
+      - name: Set up Java
+        if: needs.detect-language.outputs.language == 'java'
+        uses: actions/setup-java@v4
         with:
           java-version: '17'
           distribution: 'temurin'
-      - run: mvn checkstyle:checkstyle 2>&1 | tee lint.log
+
+      - name: Set up .NET
+        if: needs.detect-language.outputs.language == 'dotnet'
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '6.0.x'
+
+      - name: Run Linter
+        run: |
+          case "${{ needs.detect-language.outputs.language }}" in
+            java)
+              mvn checkstyle:checkstyle | tee lint.log
+              ;;
+            dotnet)
+              dotnet tool install -g dotnet-format
+              export PATH="$PATH:$HOME/.dotnet/tools"
+              dotnet format --verify-no-changes | tee lint.log
+              ;;
+          esac
+
       - uses: actions/upload-artifact@v4
         with:
           name: lint-log
           path: lint.log
 
   security:
-    if: startsWith(github.head_ref, 'Q-TRANSFORM-issue-')
+    needs: [detect-language, build]
+    if: needs.detect-language.outputs.language != 'unknown'
     runs-on: ubuntu-latest
-    needs: build
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-java@v4
+
+      - name: Set up Java
+        if: needs.detect-language.outputs.language == 'java'
+        uses: actions/setup-java@v4
         with:
           java-version: '17'
           distribution: 'temurin'
-      - name: Run OWASP Dependency-Check
+
+      - name: Set up .NET
+        if: needs.detect-language.outputs.language == 'dotnet'
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '6.0.x'
+
+      - name: Run Security Scan
         run: |
-          curl -L -o dc.zip https://github.com/jeremylong/DependencyCheck/releases/download/v9.0.9/dependency-check-9.0.9-release.zip
-          unzip -q dc.zip -d dc
-          chmod +x dc/dependency-check/bin/dependency-check.sh
-          dc/dependency-check/bin/dependency-check.sh --project mini-spring --scan . --format ALL --out security-report 2>&1 | tee security.log
+          case "${{ needs.detect-language.outputs.language }}" in
+            java)
+              curl -L -o dc.zip https://github.com/jeremylong/DependencyCheck/releases/download/v9.0.9/dependency-check-9.0.9-release.zip
+              unzip -q dc.zip -d dc
+              chmod +x dc/dependency-check/bin/dependency-check.sh
+              dc/dependency-check/bin/dependency-check.sh --project project --scan . --format ALL --out security-report | tee security.log
+              ;;
+            dotnet)
+              dotnet list package --vulnerable | tee security.log
+              ;;
+          esac
+
       - uses: actions/upload-artifact@v4
         with:
           name: security-log
@@ -98,10 +185,9 @@ jobs:
     runs-on: ubuntu-latest
     needs: [build, test, lint, security]
     steps:
-      - name: Checkout Repo
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Download All Logs
+      - name: Download Logs
         uses: actions/download-artifact@v4
         with:
           path: logs
@@ -115,31 +201,40 @@ jobs:
 
           for job in build test lint security; do
             LOGFILE="logs/${job}-log/${job}.log"
-            echo "## ✅ ${job^} Log" >> $REPORT
-            echo '```' >> $REPORT
+            echo "## 🔹 ${job^} Result" >> $REPORT
+
             if [[ -f "$LOGFILE" ]]; then
-              tail -n 50 "$LOGFILE" >> $REPORT
+              ERRCOUNT=$(grep -ciE "error|failed|exception" "$LOGFILE")
+              if [[ "$ERRCOUNT" -gt 0 ]]; then
+                echo "**❌ Failed — $ERRCOUNT issue(s) found**" >> $REPORT
+                echo "" >> $REPORT
+                echo '**Top Errors:**' >> $REPORT
+                echo '```' >> $REPORT
+                grep -iE "error|failed|exception" "$LOGFILE" | head -n 10 >> $REPORT
+                echo '```' >> $REPORT
+              else
+                echo "**✅ Succeeded**" >> $REPORT
+              fi
             else
-              echo "⚠️ Log not found. Job may not have executed or artifact was missing." >> $REPORT
+              echo "**⚠️ No log found (job may not have run)**" >> $REPORT
             fi
-            echo '```' >> $REPORT
-            echo >> $REPORT
+
+            echo "" >> $REPORT
           done
+
+
 
       - name: Commit and Push Report
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          
+
           git fetch origin
           git checkout -b pr-branch origin/${{ github.head_ref }}
 
           git add reports/post-modernization.md
           git commit -m "📄 Add post-modernization report with logs [skip ci]" || echo "No changes to commit"
-
-          # Rebase instead of merge to avoid unwanted merge commits
           git pull --rebase origin ${{ github.head_ref }}
           git push origin pr-branch:${{ github.head_ref }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
